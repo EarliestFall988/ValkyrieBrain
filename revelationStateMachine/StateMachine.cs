@@ -106,7 +106,10 @@ namespace revelationStateMachine
                 Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
 
                 int result = CurrentState.Job();
+                Console.WriteLine("Result: " + result);
                 State? nextState = CurrentState.EvaluateTransitions(result);
+
+                Console.WriteLine("Next State: " + nextState?.Name);
 
                 if (nextState != null)
                 {

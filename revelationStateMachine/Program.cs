@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using revelationStateMachine;
 
 Console.WriteLine("\t>Starting State Machine...\n\n");
-
-
+Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
+Dictionary<string, State> States = new Dictionary<string, State>();
+Dictionary<string, Transition> Transitions = new Dictionary<string, Transition>();
 
 string store =
 """
@@ -14,69 +15,60 @@ string store =
 """; // CSV data
 
 
+string structure =
+"""
+define
+    
+    //define the start and fallback states
+    start s : CheckCondition
+    fallback exit : Next
+
+    //define intermediary states
+    state middle : Next
+
+end define
+
+
+connect
+
+    success = s -> middle : 1
+    return = middle -> s: 0
+    fail = s -> s : 0
+    exit = s -> exit : -1
+
+end connect
+
+""";
+
+StateMachine stateMachine = new StateMachine();
+stateMachine.Store = store;
+StateMachineConstructor constructor = new StateMachineConstructor();
+constructor.functions = new Functions(stateMachine).functions;
+constructor.ParseInstructions(structure, stateMachine);
+
+
 
 // Console.WriteLine("data" + " " + stateMachine.Store);
 // Console.WriteLine("data " + stateMachine.ReadKey(1, 1));
-StateMachine stateMachine = new StateMachine();
-stateMachine.Store = store;
 
-Func<string, bool> Exit = (x) =>
-{
-    if (x == "Exit")
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-};
+// var f = new Functions(stateMachine).functions;
+// stateMachine.Store = store;
 
-Func<int> CheckCondition = () =>
-{
-
-    Console.WriteLine("Type in a number");
-    string? number = Console.ReadLine();
-
-    if (number == null || number.Trim() == "")
-        return 0;
-
-    if (Exit(number)) // exit the program
-    {
-        return -1;
-    }
-
-    Console.WriteLine("Checking Data @ 1,1");
-    bool result = stateMachine.ReadKey(1, 1, out var str);
-    if (result && str == number)
-    {
-        Console.WriteLine("Correct.");
-        return 1;
-    }
-    else
-    {
-        Console.WriteLine("Incorrect.");
-        return 0;
-    }
-};
-
-Func<int> Next = () => 0;
-
-State newState = new State("newState", Next);
+// State newState = new State("newState", f["Next"]);
 
 
-State initialState = new State("state", CheckCondition);
-State fallbackState = new State("fallback", Next);
+// State initialState = new State("state", f["CheckCondition"]);
+// State fallbackState = new State("fallback", f["Next"]);
 
-newState.Transitions.Add(new Transition(newState, initialState, "return", 0));
+// newState.Transitions.Add(new Transition(newState, initialState, "return", 0));
 
-initialState.Transitions.Add(new Transition(initialState, newState, "1", 1));
-initialState.Transitions.Add(new Transition(initialState, fallbackState, "exit", -1));
+// initialState.Transitions.Add(new Transition(initialState, newState, "1", 1));
+// initialState.Transitions.Add(new Transition(initialState, fallbackState, "exit", -1));
 
-stateMachine.InitialState = initialState;
-stateMachine.FallbackState = fallbackState;
+// stateMachine.InitialState = initialState;
+// stateMachine.FallbackState = fallbackState;
 
-stateMachine.AddState(newState);
+// stateMachine.AddState(newState);
 
 stateMachine.Start();
 

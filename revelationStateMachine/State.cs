@@ -32,6 +32,20 @@ namespace revelationStateMachine
         /// <value></value>
         public bool active { get; set; }
 
+
+        /// <summary>
+        /// Is this the initial state?
+        /// </summary>
+        /// <value></value>
+        public bool InitialState { get; set; }
+
+
+        /// <summary>
+        /// Is this the fallback state?
+        /// </summary>
+        /// <value></value>
+        public bool FallbackState { get; set; }
+
         /// <summary>
         /// Creates a new state with the given name.
         /// </summary>
@@ -45,8 +59,13 @@ namespace revelationStateMachine
 
         public State? EvaluateTransitions(int outcome)
         {
+
+            Console.WriteLine($"Evaluating Transitions for {Name} with outcome {outcome}");
+            Console.WriteLine(Transitions.Count);
+
             foreach (var x in Transitions)
             {
+                Console.WriteLine(x.Name);
                 var result = x.EvaluateCondition(outcome);
                 if (result)
                 {
