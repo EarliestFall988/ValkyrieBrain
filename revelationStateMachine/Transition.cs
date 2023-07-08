@@ -47,5 +47,20 @@ namespace revelationStateMachine
             Name = name;
             Condition = condition;
         }
+
+
+        public bool EvaluateCondition()
+        {
+            if (Condition())
+            {
+                From.active = false;
+                To.active = true;
+
+                Console.WriteLine($"Transitioning from {From.Name} to {To.Name}");
+                return true;
+            }
+
+            return false;
+        }
     }
 }
