@@ -21,6 +21,12 @@ namespace revelationStateMachine
         public string Name { get; set; }
 
         /// <summary>
+        /// The job performed by the state
+        /// </summary>
+        /// <value></value>
+        public Func<int> Job { get; set; }
+
+        /// <summary>
         /// Is the state active?
         /// </summary>
         /// <value></value>
@@ -30,22 +36,25 @@ namespace revelationStateMachine
         /// Creates a new state with the given name.
         /// </summary>
         /// <param name="name"></param>
-        public State(string name)
+        public State(string name, Func<int> stateJob)
         {
             Name = name;
             active = false;
+            Job = stateJob;
         }
 
-        public void EvaluateTransitions()
+        public State? EvaluateTransitions(int outcome)
         {
             foreach (var x in Transitions)
             {
-                var result = x.EvaluateCondition();
+                var result = x.EvaluateCondition(outcome);
                 if (result)
                 {
-                    break;
+                    return x.To;
                 }
             }
+
+            return null;
         }
 
         public override string ToString()

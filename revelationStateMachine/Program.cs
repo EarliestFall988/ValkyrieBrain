@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 using revelationStateMachine;
 
-Console.WriteLine("\t>Start");
+Console.WriteLine("\t>Starting State Machine...\n\n");
 
-State initialState = new State("state");
-State fallbackState = new State("fallback");
 
-string data =
+
+string store =
 """
 5,6
 4,2
@@ -16,33 +15,69 @@ string data =
 
 
 
-StateMachine stateMachine = new StateMachine(initialState, fallbackState, data);
+// Console.WriteLine("data" + " " + stateMachine.Store);
+// Console.WriteLine("data " + stateMachine.ReadKey(1, 1));
+StateMachine stateMachine = new StateMachine();
+stateMachine.Store = store;
 
-Console.WriteLine("data" + " " + stateMachine.Data);
-Console.WriteLine("data " + stateMachine.ReadKey(1, 1));
+Func<string, bool> Exit = (x) =>
+{
+    if (x == "Exit")
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+};
 
-State newState = new State("newState");
-
-stateMachine.AddState(newState);
-
-Func<bool> condition = () =>
+Func<int> CheckCondition = () =>
 {
 
     Console.WriteLine("Type in a number");
     string? number = Console.ReadLine();
 
     if (number == null || number.Trim() == "")
-        return false;
+        return 0;
+
+    if (Exit(number)) // exit the program
+    {
+        return -1;
+    }
 
     Console.WriteLine("Checking Data @ 1,1");
-    bool result = stateMachine.ReadKey(1, 1) == number.Trim();
-    Console.WriteLine("Result: " + result);
-    return result;
+    bool result = stateMachine.ReadKey(1, 1, out var str);
+    if (result && str == number)
+    {
+        Console.WriteLine("Correct.");
+        return 1;
+    }
+    else
+    {
+        Console.WriteLine("Incorrect.");
+        return 0;
+    }
 };
 
-Transition transition = new Transition(initialState, newState, "test", condition);
-initialState.Transitions.Add(transition);
+Func<int> Next = () => 0;
 
-stateMachine.Evaluate();
+State newState = new State("newState", Next);
 
-Console.WriteLine("\t>End");
+
+State initialState = new State("state", CheckCondition);
+State fallbackState = new State("fallback", Next);
+
+newState.Transitions.Add(new Transition(newState, initialState, "return", 0));
+
+initialState.Transitions.Add(new Transition(initialState, newState, "1", 1));
+initialState.Transitions.Add(new Transition(initialState, fallbackState, "exit", -1));
+
+stateMachine.InitialState = initialState;
+stateMachine.FallbackState = fallbackState;
+
+stateMachine.AddState(newState);
+
+stateMachine.Start();
+
+Console.WriteLine("\n\n\t>Exiting...");

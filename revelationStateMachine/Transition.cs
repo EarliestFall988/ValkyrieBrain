@@ -25,11 +25,12 @@ namespace revelationStateMachine
         /// <value></value>
         public string Name { get; set; }
 
+
         /// <summary>
-        /// The condition that must be met for the transition to occur
+        /// the outcome to check
         /// </summary>
         /// <value></value>
-        public Func<bool> Condition { get; set; }
+        public int Outcome { get; set; }
 
         /// <summary>
         /// Default constructor
@@ -40,23 +41,20 @@ namespace revelationStateMachine
         /// <param name="to">
         ///  The state that the transition is going to
         /// </param>
-        public Transition(State from, State to, string name, Func<bool> condition)
+        public Transition(State from, State to, string name, int outcome)
         {
             From = from;
             To = to;
             Name = name;
-            Condition = condition;
+            Outcome = outcome;
         }
 
 
-        public bool EvaluateCondition()
+        public bool EvaluateCondition(int condition)
         {
-            if (Condition())
+            if (condition == Outcome)
             {
-                From.active = false;
-                To.active = true;
-
-                Console.WriteLine($"Transitioning from {From.Name} to {To.Name}");
+                Console.WriteLine($"[{From.Name}] -> [{To.Name}]");
                 return true;
             }
 
