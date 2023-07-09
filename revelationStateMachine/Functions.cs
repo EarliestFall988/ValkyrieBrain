@@ -23,23 +23,23 @@ namespace revelationStateMachine
                 }
             };
 
-            Func<int> CheckCondition = () =>
+            Func<int> Guess = () =>
             {
 
-                Console.WriteLine("Type in a number");
+                Console.WriteLine("Guess in a number");
                 string? number = Console.ReadLine();
 
                 if (number == null || number.Trim() == "")
                     return 0;
 
-                Console.WriteLine("You typed in " + number);
+                // Console.WriteLine("You typed in " + number);
 
                 if (Exit(number)) // exit the program
                 {
                     return -1;
                 }
 
-                Console.WriteLine("Checking Data @ 1,1");
+                // Console.WriteLine("Checking Data @ 1,1");
                 bool result = stateMachine.ReadKey(1, 1, out var str);
                 if (result && str == number)
                 {
@@ -48,15 +48,39 @@ namespace revelationStateMachine
                 }
                 else
                 {
-                    Console.WriteLine("Incorrect.");
+                    Console.WriteLine("Incorrect. Try Again");
+                    return 0;
+                }
+            };
+
+            Func<int> ExitQuestion = () =>
+            {
+
+                Console.WriteLine("Would you like to exit?");
+                string? answer = Console.ReadLine();
+
+                if (answer == null || answer.Trim() == "")
+                    return 0;
+
+                // Console.WriteLine("You typed in " + number);
+
+                if (answer.Trim().ToLower() == "yes") // exit the program
+                {
+                    return 1;
+                }
+                else 
+                {
                     return 0;
                 }
             };
 
             Func<int> Next = () => 0;
+            Func<int> ExitProgram = () => 0;
 
-            functions.Add("CheckCondition", CheckCondition);
-            functions.Add("Next", Next);
+            functions.Add("Guess", Guess); // returns 1 if correct, zero if not 
+            functions.Add("Next", Next); //simple connect to next state
+            functions.Add("Exit", ExitProgram); //exit the program
+            functions.Add("ExitQuestion", ExitQuestion); //exit the program question
         }
     }
 }

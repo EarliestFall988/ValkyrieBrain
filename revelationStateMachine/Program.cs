@@ -16,23 +16,27 @@ string store =
 
 
 string structure =
+
 """
 define
     
     //define the start and fallback states
-    start s : CheckCondition
-    fallback exit : Next
+    start s : Guess
+    fallback exit
 
     //define intermediary states
-    state middle : Next
+    //state middle : Next
+    state exitQuestion : ExitQuestion
 
 end define
 
 
 connect
 
-    success = s -> middle : 1
-    return = middle -> s: 0
+    success = s -> exitQuestion : 1
+    // return = middle -> s: 0
+    exitQuestionSuccess = exitQuestion -> exit : 1
+    exitQuestionFail = exitQuestion -> s : 0
     fail = s -> s : 0
     exit = s -> exit : -1
 
