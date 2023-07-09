@@ -106,10 +106,12 @@ namespace revelationStateMachine
                 Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
 
                 int result = CurrentState.Job();
-                Console.WriteLine("Result: " + result);
+                // Console.WriteLine("Result: " + result);
                 State? nextState = CurrentState.EvaluateTransitions(result);
 
-                Console.WriteLine("Next State: " + nextState?.Name);
+                // Console.WriteLine("Next State: " + nextState?.Name);
+
+                Console.WriteLine(Store);
 
                 if (nextState != null)
                 {
@@ -149,7 +151,8 @@ namespace revelationStateMachine
                     cells[col] = data;
                     lines[row] = string.Join(',', cells);
                     string result = string.Join('\n', lines);
-                    data = result;
+                    Store = result;
+                    // Console.WriteLine(data);
                     return true;
                 }
                 else

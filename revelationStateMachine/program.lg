@@ -1,0 +1,32 @@
+
+//Author: Taylor Howell
+//This is a sample program that creates and manages guessing game.
+
+//The states are created and connected at runtime.
+
+
+//define each of your states here
+define
+    
+    //define the start and fallback states
+    start s : GreetUser
+    fallback exit
+
+    //define intermediary states
+    state guessNumber : Guess
+    state exitQuestion : ExitQuestion
+
+end define
+
+//connect the states together with transitions
+connect
+
+    startGuessing = s -> guessNumber : 1
+    guessFail = guessNumber -> guessNumber : 0
+    guessSuccess = guessNumber -> exitQuestion : 1
+    exitQuestionSuccess = exitQuestion -> exit : 1
+    exitQuestionFail = exitQuestion -> guessNumber : 0
+    fail = s -> s : 0
+    exit = s -> exit : -1
+
+end connect

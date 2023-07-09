@@ -54,7 +54,7 @@ namespace revelationStateMachine
         {
             if (condition == Outcome)
             {
-                Console.WriteLine($"[{From.Name}] -> [{To.Name}]");
+                // Console.WriteLine($"[{From.Name}] -> [{To.Name}]");
                 return true;
             }
 

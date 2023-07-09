@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using revelationStateMachine;
 
-Console.WriteLine("\t>Starting State Machine...\n\n");
+Console.WriteLine("\t>Starting Parser and Interpreter...\n\n");
 Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
 Dictionary<string, State> States = new Dictionary<string, State>();
 Dictionary<string, Transition> Transitions = new Dictionary<string, Transition>();
@@ -15,34 +15,15 @@ string store =
 """; // CSV data
 
 
-string structure =
+string structure = "";
+using (StreamReader reader = File.OpenText(@"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\program.lg"))
+{
+    structure = await reader.ReadToEndAsync();
+}
 
-"""
-define
-    
-    //define the start and fallback states
-    start s : Guess
-    fallback exit
+// Console.WriteLine("read file: \n" + structure);
 
-    //define intermediary states
-    //state middle : Next
-    state exitQuestion : ExitQuestion
-
-end define
-
-
-connect
-
-    success = s -> exitQuestion : 1
-    // return = middle -> s: 0
-    exitQuestionSuccess = exitQuestion -> exit : 1
-    exitQuestionFail = exitQuestion -> s : 0
-    fail = s -> s : 0
-    exit = s -> exit : -1
-
-end connect
-
-""";
+Console.WriteLine("\t>Launching State Machine...\n");
 
 StateMachine stateMachine = new StateMachine();
 stateMachine.Store = store;
@@ -50,6 +31,15 @@ StateMachineConstructor constructor = new StateMachineConstructor();
 constructor.functions = new Functions(stateMachine).functions;
 constructor.ParseInstructions(structure, stateMachine);
 
+Console.WriteLine("\n\tRun Program?\n");
+string? result = Console.ReadLine();
+
+if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
+{
+    stateMachine.Start();
+}
+
+Console.WriteLine("\n\n\t>Exiting...");
 
 
 // Console.WriteLine("data" + " " + stateMachine.Store);
@@ -73,7 +63,3 @@ constructor.ParseInstructions(structure, stateMachine);
 // stateMachine.FallbackState = fallbackState;
 
 // stateMachine.AddState(newState);
-
-stateMachine.Start();
-
-Console.WriteLine("\n\n\t>Exiting...");

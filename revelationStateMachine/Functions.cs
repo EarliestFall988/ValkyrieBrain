@@ -26,7 +26,15 @@ namespace revelationStateMachine
             Func<int> Guess = () =>
             {
 
-                Console.WriteLine("Guess in a number");
+                bool res = stateMachine.ReadKey(0, 0, out var name);
+
+                if (!res)
+                {
+                    Console.WriteLine("Error reading name.");
+                    return -1;
+                }
+
+                Console.WriteLine($"Okay {name}, Guess in a number");
                 string? number = Console.ReadLine();
 
                 if (number == null || number.Trim() == "")
@@ -68,10 +76,43 @@ namespace revelationStateMachine
                 {
                     return 1;
                 }
-                else 
+                else
                 {
                     return 0;
                 }
+            };
+
+            Func<int> GreetUser = () =>
+            {
+
+                string? result = "";
+                Console.WriteLine("Hello!");
+
+                while (result == null || result == string.Empty)
+                {
+                    Console.WriteLine("What is your Name?");
+                    result = Console.ReadLine();
+
+                    if (result == null || result == string.Empty)
+                    {
+                        Console.WriteLine("That's not your name!");
+                    }
+
+                    if (Exit(result ?? ""))
+                    {
+                        return -1;
+                    }
+
+                    bool success = stateMachine.WriteValue(0, 0, result?.Replace(',', '\'') ?? "");
+
+                    if (!success)
+                    {
+                        Console.WriteLine("could not write to store");
+                        return -1;
+                    }
+                }
+
+                return 1;
             };
 
             Func<int> Next = () => 0;
@@ -81,6 +122,7 @@ namespace revelationStateMachine
             functions.Add("Next", Next); //simple connect to next state
             functions.Add("Exit", ExitProgram); //exit the program
             functions.Add("ExitQuestion", ExitQuestion); //exit the program question
+            functions.Add("GreetUser", GreetUser); // greet the user at the beginning of the interaction
         }
     }
 }

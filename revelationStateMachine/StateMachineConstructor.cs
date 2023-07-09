@@ -282,13 +282,13 @@ namespace revelationStateMachine
                 throw new Exception($"No fallback state defined.");
             }
 
-            Console.WriteLine("\tResult:");
+            Console.WriteLine("\t>Result:");
             foreach (var x in States.Values)
             {
                 Console.WriteLine("|" + x.Name + " -> " + String.Join(',', x.Transitions));
             }
 
-            Console.WriteLine("\n\n");
+            Console.WriteLine("\t>Program Loaded.\n");
 
             sm.States.AddRange(States.Values);
         }
