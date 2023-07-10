@@ -1,4 +1,5 @@
 
+//Name: Simple Guessing Game
 //Author: Taylor Howell
 //This is a sample program that creates and manages guessing game.
 
@@ -10,7 +11,7 @@
 //The program will exit if the user enters "exit" or "quit" when asked if they want to play again.
 //The program will also exit if the user enters "exit" or "quit" when asked to guess a number.
 
-//create your variables here
+//1. create your variables here
 create
 
     nameVariable text = ""
@@ -21,7 +22,7 @@ create
 
 end create
 
-//import the functions you need and assign the variables
+//2. import the functions you need and assign the variables
 import
 
     using GreetUser
@@ -41,7 +42,7 @@ import
 
 end import
 
-//define each of your states here
+//3. define each of your states here
 define
     
     //define the start and fallback states
@@ -55,7 +56,7 @@ define
 
 end define
 
-//connect the states together with transitions
+//4. connect the states together with transitions
 connect
 
     startGuessing = s -> guessNumber : 1
