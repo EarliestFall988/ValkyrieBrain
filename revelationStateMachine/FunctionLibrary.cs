@@ -150,12 +150,14 @@ namespace revelationStateMachine
             ExitQuestionFunction exitQuestion = new ExitQuestionFunction();
             GreetUserFunction greetFunction = new GreetUserFunction();
             GuessFunction guessFunction = new GuessFunction();
+            SetRandomNumberFunction randomFunction = new SetRandomNumberFunction();
 
 
             ImportedFunctions.Add(continueFunction.Name, continueFunction);
             ImportedFunctions.Add(exitQuestion.Name, exitQuestion);
             ImportedFunctions.Add(greetFunction.Name, greetFunction);
             ImportedFunctions.Add(guessFunction.Name, guessFunction);
+            ImportedFunctions.Add(randomFunction.Name, randomFunction);
         }
 
         public bool TryGetFunction(string name, out FunctionDefinition? function)

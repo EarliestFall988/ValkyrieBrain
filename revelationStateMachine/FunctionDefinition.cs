@@ -24,7 +24,7 @@ namespace revelationStateMachine
         /// </summary>
         /// <typeparam name="StateMachineVariableType"></typeparam>
         /// <returns></returns>
-        protected Dictionary<string, (StateMachineVariableType type, bool applied)> ExpectedParameters { get; set; } = new Dictionary<string, (StateMachineVariableType type, bool applied)>();
+        public Dictionary<string, (StateMachineVariableType type, bool applied)> ExpectedParameters { get; set; } = new Dictionary<string, (StateMachineVariableType type, bool applied)>();
 
         /// <summary>
         /// The dictionary of parameters
@@ -50,16 +50,27 @@ namespace revelationStateMachine
                         if (ExpectedParameters[x.Key].type == x.Value.Type)
                         {
                             Parameters.Add(x.Key, x.Value);
+                            ExpectedParameters[x.Key] = (ExpectedParameters[x.Key].type, true);
                         }
                         else
                         {
-                            result = "Parameter type mismatch. The expected type of parameter " + x.Value.Key + " is " + ExpectedParameters[x.Key].type + " but " + x.Value.Type + " was provided.";
+                            result = "Parameter type mismatch. The expected type of parameter " + x.Value.Key + " is " + ExpectedParameters[x.Key].type + " but " + x.Value.Type + " was provided for the function " + Name + ".";
                             return false;
                         }
                     }
                     else
                     {
-                        result = "Parameter mismatch. The expected parameter " + x.Key + " was not provided.";
+
+                        result = "";
+                        List<string> keys = new List<string>();
+                        foreach (var y in ExpectedParameters)
+                        {
+                            if (y.Value.applied == false)
+                            {
+                                keys.Add(y.Key);
+                            }
+                        }
+                        result = "Parameter mismatch. The expected parameters " + string.Join(", ", keys) + " were not provided for the function " + Name + ".";
                         return false;
                     }
                 }

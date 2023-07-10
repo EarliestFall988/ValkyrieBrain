@@ -16,17 +16,25 @@ create
     nameVariable text = ""
     guessVariable integer = 2
 
+    max integer = 10
+    min integer = 0
+
 end create
 
-//import the functions you need
+//import the functions you need and assign the variables
 import
 
-    using GreetUser:
+    using GreetUser
         name = nameVariable
 
-    using Guess:
+    using Guess
         name = nameVariable
         guess = guessVariable
+
+    using SetRandomNumber
+        max = max
+        min = min
+        valueToChange = guessVariable
 
     using ExitQuestion
 
@@ -42,6 +50,7 @@ define
 
     //define intermediary states
     state guessNumber : Guess
+    state resetNumber : SetRandomNumber
     state exitQuestion : ExitQuestion
 
 end define
@@ -53,7 +62,8 @@ connect
     guessFail = guessNumber -> guessNumber : 0
     guessSuccess = guessNumber -> exitQuestion : 1
     exitQuestionSuccess = exitQuestion -> exit : 1
-    exitQuestionFail = exitQuestion -> guessNumber : 0
+    exitQuestionFail = exitQuestion -> resetNumber : 0
+    resetNumberSuccess = resetNumber -> guessNumber : 1
     fail = s -> s : 0
     exit = s -> exit : -1
 

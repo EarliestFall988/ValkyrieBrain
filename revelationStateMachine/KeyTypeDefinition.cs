@@ -26,6 +26,7 @@ namespace revelationStateMachine
 
         public Int32 GetInt()
         {
+            Console.WriteLine("value: " + Value);
             return Int32.Parse(Value);
         }
 

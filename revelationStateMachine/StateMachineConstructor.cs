@@ -9,7 +9,7 @@ namespace revelationStateMachine
 {
     public class StateMachineConstructor
     {
-        private Dictionary<string, Func<int>> functions;
+        private Dictionary<string, FunctionDefinition> functions;
         private Dictionary<string, State> States;
         private Dictionary<string, Transition> Transitions;
         private Dictionary<string, KeyTypeDefinition> Variables;
@@ -29,7 +29,7 @@ namespace revelationStateMachine
             FilePath = filePath;
             StateMachine = new StateMachine();
             FunctionLibrary = new FunctionLibrary();
-            functions = new Dictionary<string, Func<int>>();
+            functions = new Dictionary<string, FunctionDefinition>();
             States = new Dictionary<string, State>();
             Transitions = new Dictionary<string, Transition>();
             Variables = new Dictionary<string, KeyTypeDefinition>();
@@ -50,7 +50,7 @@ namespace revelationStateMachine
             var stateJob = GetDefaultFunction();
 
             if (trimmedJobName != string.Empty)
-                stateJob = functions[trimmedJobName];
+                stateJob = functions[trimmedJobName].Function;
 
             AddState(new State(trimmedName, stateJob));
             if (trimmedJobName != null && trimmedJobName != string.Empty)
@@ -73,7 +73,7 @@ namespace revelationStateMachine
 
             var stateJob = functions[trimmedJobName];
 
-            State state = new State(trimmedName, stateJob);
+            State state = new State(trimmedName, stateJob.Function);
 
             machine.InitialState = state;
             Console.WriteLine("adding initial " + trimmedName + " : " + trimmedJobName);
@@ -91,7 +91,7 @@ namespace revelationStateMachine
             var stateJob = GetDefaultFunction();
 
             if (trimmedJobName != string.Empty)
-                stateJob = functions[trimmedJobName];
+                stateJob = functions[trimmedJobName].Function;
 
             // States.Add(name, new State(name, stateJob));
             var state = new State(trimmedName, stateJob);
@@ -420,8 +420,7 @@ namespace revelationStateMachine
                     if (functionName.Length < 1)
                         throw new Exception($"Invalid function definition. A valid function name must be given after the definition. (at line {lineNumber})");
 
-                    if (functionName.EndsWith(":"))
-                        functionName = functionName.Substring(0, functionName.Length - 1);
+
 
 
 
@@ -441,7 +440,7 @@ namespace revelationStateMachine
                             throw new Exception($"Invalid function definition. The function {functionName} does not exist. (at line {lineNumber})");
 
                         currentFunction = function;
-                        functions.Add(functionName, currentFunction.Function);
+                        functions.Add(functionName, currentFunction);
                         continue;
                     }
                     else
@@ -474,8 +473,6 @@ namespace revelationStateMachine
 
                         if (variableName == null || variableName == "")
                             throw new Exception($"Invalid function parameter definition. A valid variable name must be given after the parameter insert name. (at line {lineNumber})");
-
-                        Console.WriteLine("variables: ", string.Join(',', Variables.Keys));
 
                         if (!Variables.ContainsKey(variableName))
                             throw new Exception($"Invalid function parameter definition. The variable {variableName} does not exist. (at line {lineNumber})");
@@ -584,8 +581,6 @@ namespace revelationStateMachine
                 }
 
 
-
-
                 lineNumber++;
             }
 
@@ -615,13 +610,36 @@ namespace revelationStateMachine
                 throw new Exception($"No fallback state defined.");
             }
 
-            Console.WriteLine("\t>Result:");
-            foreach (var x in States.Values)
+            Console.WriteLine("\t>Result:\n\n");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Imported Functions:");
+            Console.ResetColor();
+            foreach (var x in functions.Values)
             {
-                Console.WriteLine("|" + x.Name + " -> " + String.Join(',', x.Transitions));
+
+                string pmtrs = "";
+
+                foreach (var y in x.ExpectedParameters)
+                {
+                    pmtrs += y.Key + ": " + y.Value.type + ", ";
+                }
+
+                pmtrs = pmtrs.Trim().TrimEnd(',');
+
+                Console.WriteLine("|" + x.Name + " [" + pmtrs + "]");
             }
 
-            Console.WriteLine("\t>Program Loaded.\n");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n\nDefined States:");
+            Console.ResetColor();
+
+            foreach (var x in States.Values)
+            {
+                Console.WriteLine("|" + x.Name + " [" + String.Join(',', x.Transitions) + "]");
+            }
+
+            Console.WriteLine("\n\t>Program Loaded.\n");
 
             StateMachine.States.AddRange(States.Values);
 
