@@ -24,7 +24,7 @@ namespace revelationStateMachine
         /// The job performed by the state
         /// </summary>
         /// <value></value>
-        public Func<int> Job { get; set; }
+        public Func<int> Function { get; set; }
 
         /// <summary>
         /// Is the state active?
@@ -32,6 +32,11 @@ namespace revelationStateMachine
         /// <value></value>
         public bool active { get; set; }
 
+        /// <summary>
+        /// Store the data here for the state and function to act on.
+        /// </summary>
+        /// <value></value>
+        public string Store { get; set; } = "";
 
         /// <summary>
         /// Is this the initial state?
@@ -50,11 +55,12 @@ namespace revelationStateMachine
         /// Creates a new state with the given name.
         /// </summary>
         /// <param name="name"></param>
-        public State(string name, Func<int> stateJob)
+        public State(string name, Func<int> stateJob, string store = "")
         {
             Name = name;
             active = false;
-            Job = stateJob;
+            Function = stateJob;
+            Store = store;
         }
 
         public State? EvaluateTransitions(int outcome)

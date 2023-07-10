@@ -4,6 +4,34 @@
 
 //The states are created and connected at runtime.
 
+//The program will ask the user for their name, then ask them to guess a number between 1 and 10.
+//If the user guesses correctly, the program will ask if they want to play again.
+//If the user guesses incorrectly, the program will ask them to guess again.
+//The program will exit if the user enters "exit" or "quit" when asked if they want to play again.
+//The program will also exit if the user enters "exit" or "quit" when asked to guess a number.
+
+//create your variables here
+create
+
+    nameVariable text = ""
+    guessVariable integer = 2
+
+end create
+
+//import the functions you need
+import
+
+    using GreetUser:
+        name = nameVariable
+
+    using Guess:
+        name = nameVariable
+        guess = guessVariable
+
+    using ExitQuestion
+
+
+end import
 
 //define each of your states here
 define

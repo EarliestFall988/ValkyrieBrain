@@ -3,43 +3,49 @@ using System;
 using System.Collections.Generic;
 using revelationStateMachine;
 
-Console.WriteLine("\t>Starting Parser and Interpreter...\n\n");
-Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
-Dictionary<string, State> States = new Dictionary<string, State>();
-Dictionary<string, Transition> Transitions = new Dictionary<string, Transition>();
-
-string store =
-"""
-5,6
-4,2
-"""; // CSV data
 
 
-string structure = "";
-using (StreamReader reader = File.OpenText(@"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\program.lg"))
-{
-    structure = await reader.ReadToEndAsync();
-}
+
+string programFilePath = @"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\program.lg";
+StateMachineConstructor constructor = new StateMachineConstructor(programFilePath);
+
+StateMachine machine = await constructor.ParseInstructions();
+StateMachineConstructor.BootStateMachine(machine);
+
+
+
+
+// 
+// Dictionary<string, Func<int>> functions = new Dictionary<string, Func<int>>();
+// Dictionary<string, State> States = new Dictionary<string, State>();
+// Dictionary<string, Transition> Transitions = new Dictionary<string, Transition>();
+
+// string store =
+// """
+// 5,6
+// 4,2
+// """; // CSV data
+
+
+// string structure = "";
+// using (StreamReader reader = File.OpenText(@"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\program.lg"))
+// {
+//     structure = await reader.ReadToEndAsync();
+// }
 
 // Console.WriteLine("read file: \n" + structure);
 
-Console.WriteLine("\t>Launching State Machine...\n");
+// Console.WriteLine("\t>Launching State Machine...\n");
 
-StateMachine stateMachine = new StateMachine();
-stateMachine.Store = store;
-StateMachineConstructor constructor = new StateMachineConstructor();
-constructor.functions = new Functions(stateMachine).functions;
-constructor.ParseInstructions(structure, stateMachine);
+// StateMachine stateMachine = new StateMachine();
+// // stateMachine.Store = store;
+// string filePath = @"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\program.lg";
+// StateMachineConstructor constructor = new StateMachineConstructor(filePath);
+// // constructor.functions = new FunctionLibrary().ImportedFunctions;
+// // string structure = await constructor.GetProgramFile();
+// StateMachine machine = await constructor.ParseInstructions();
+// StateMachineConstructor.Boot(stateMachine);
 
-Console.WriteLine("\n\tRun Program?\n");
-string? result = Console.ReadLine();
-
-if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
-{
-    stateMachine.Start();
-}
-
-Console.WriteLine("\n\n\t>Exiting...");
 
 
 // Console.WriteLine("data" + " " + stateMachine.Store);

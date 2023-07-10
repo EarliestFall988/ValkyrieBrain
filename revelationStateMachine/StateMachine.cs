@@ -57,16 +57,16 @@ namespace revelationStateMachine
             States.Add(state);
         }
 
-        public void Start()
+        public void RunStateMachine()
         {
 
-            if (Store == string.Empty)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("The Store is empty");
-                Console.ResetColor();
-                return;
-            }
+            // if (Store == string.Empty)
+            // {
+            //     Console.ForegroundColor = ConsoleColor.Red;
+            //     Console.WriteLine("The Store is empty");
+            //     Console.ResetColor();
+            //     return;
+            // }
 
             if (FallbackState == null || InitialState == null)
             {
@@ -103,15 +103,18 @@ namespace revelationStateMachine
             }
             else
             {
-                Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
+                // Console.ForegroundColor = ConsoleColor.Green;
+                // Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
+                // Console.ResetColor();
+                Console.WriteLine();
 
-                int result = CurrentState.Job();
+                int result = CurrentState.Function();
                 // Console.WriteLine("Result: " + result);
                 State? nextState = CurrentState.EvaluateTransitions(result);
 
                 // Console.WriteLine("Next State: " + nextState?.Name);
 
-                Console.WriteLine(Store);
+                // Console.WriteLine(Store);
 
                 if (nextState != null)
                 {
