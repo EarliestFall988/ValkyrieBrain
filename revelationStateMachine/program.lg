@@ -61,10 +61,12 @@ connect
     startGuessing = s -> guessNumber : 1
     guessFail = guessNumber -> guessNumber : 0
     guessSuccess = guessNumber -> exitQuestion : 1
-    exitQuestionSuccess = exitQuestion -> exit : 1
+   
     exitQuestionFail = exitQuestion -> resetNumber : 0
     resetNumberSuccess = resetNumber -> guessNumber : 1
+
     fail = s -> s : 0
     exit = s -> exit : -1
+    exitQuestionSuccess = exitQuestion -> exit : 1
 
 end connect
