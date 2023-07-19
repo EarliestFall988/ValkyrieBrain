@@ -28,6 +28,7 @@ import
     using GreetUser
         name = nameVariable
 
+    //test
     using Guess
         name = nameVariable
         guess = guessVariable
@@ -37,7 +38,7 @@ import
         min = min
         valueToChange = guessVariable
 
-    using ExitQuestion
+    using ExitQuestion 
 
 
 end import
@@ -50,7 +51,7 @@ define
     fallback exit
 
     //define intermediary states
-    state guessNumber : Guess
+    state guessNumber : Guess   
     state resetNumber : SetRandomNumber
     state exitQuestion : ExitQuestion
 
@@ -70,4 +71,8 @@ connect
     exit = s -> exit : -1
     exitQuestionSuccess = exitQuestion -> exit : 1
 
-end connect
+end connect 
+
+
+//5. run the program
+//dotnet run...

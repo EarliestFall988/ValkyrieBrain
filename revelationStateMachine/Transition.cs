@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace revelationStateMachine
 {
+    /// <summary>
+    /// The Transition is the class that handles the transition between states.
+    /// </summary>
     public struct Transition
     {
         /// <summary>

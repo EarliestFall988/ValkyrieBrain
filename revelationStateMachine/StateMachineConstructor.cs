@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace revelationStateMachine
 {
+    /// <summary>
+    /// The State Machine Constructor handles the parsing of the program file and the creation of the state machine.
+    /// </summary>
     public class StateMachineConstructor
     {
         private Dictionary<string, FunctionDefinition> functions;

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace revelationStateMachine
 {
+    /// <summary>
+    /// The State Machine is the main class that handles the state machine.
+    /// </summary>
     public class StateMachine
     {
         /// <summary>

@@ -6,141 +6,25 @@ using System.Threading.Tasks;
 
 namespace revelationStateMachine
 {
+    /// <summary>
+    /// The Function Library is a collection of all functions that can be called by the state machine.
+    /// </summary>
     public class FunctionLibrary
     {
+        /// <summary>
+        /// The dictionary of all functions that can be called by the state machine.
+        /// </summary>
+        /// <typeparam name="string">the name of the function</typeparam>
+        /// <typeparam name="FunctionDefinition">the Function Definition</typeparam>
+        /// <returns></returns>
         public Dictionary<string, FunctionDefinition> ImportedFunctions = new Dictionary<string, FunctionDefinition>();
 
+        /// <summary>
+        /// Default constructor. Imports all functions.
+        /// </summary>
         public FunctionLibrary()
         {
-
             ImportFunctions();
-            // Func<string, bool> Exit = (x) =>
-            // {
-            //     if (x.ToLower() == "exit")
-            //     {
-            //         return true;
-            //     }
-            //     else
-            //     {
-            //         return false;
-            //     }
-            // };
-
-            // Func<int> Guess = () =>
-            // {
-
-            //     bool res = stateMachine.ReadKey(0, 0, out var name);
-
-            //     if (!res)
-            //     {
-            //         Console.WriteLine("Error reading name.");
-            //         return -1;
-            //     }
-
-            //     Console.WriteLine($"Okay {name}, Guess in a number");
-            //     string? number = Console.ReadLine();
-
-            //     if (number == null || number.Trim() == "")
-            //         return 0;
-
-            //     // Console.WriteLine("You typed in " + number);
-
-            //     if (Exit(number)) // exit the program
-            //     {
-            //         return -1;
-            //     }
-
-            //     // Console.WriteLine("Checking Data @ 1,1");
-            //     bool result = stateMachine.ReadKey(1, 1, out var str);
-            //     if (result && str == number)
-            //     {
-            //         Console.WriteLine("Correct.");
-            //         return 1;
-            //     }
-            //     else
-            //     {
-            //         Console.WriteLine("Incorrect. Try Again");
-            //         return 0;
-            //     }
-            // };
-
-            // Func<int> ExitQuestion = () =>
-            // {
-
-            //     Console.WriteLine("Would you like to exit?");
-            //     string? answer = Console.ReadLine();
-
-            //     if (answer == null || answer.Trim() == "")
-            //         return 0;
-
-            //     // Console.WriteLine("You typed in " + number);
-
-            //     if (answer.Trim().ToLower() == "yes") // exit the program
-            //     {
-            //         return 1;
-            //     }
-            //     else
-            //     {
-            //         return 0;
-            //     }
-            // };
-
-            // Func<int> GreetUser = () =>
-            // {
-
-            //     string? result = "";
-            //     Console.WriteLine("Hello!");
-
-            //     while (result == null || result == string.Empty)
-            //     {
-            //         Console.WriteLine("What is your Name?");
-            //         result = Console.ReadLine();
-
-            //         if (result == null || result == string.Empty)
-            //         {
-            //             Console.WriteLine("That's not your name!");
-            //         }
-
-            //         if (Exit(result ?? ""))
-            //         {
-            //             return -1;
-            //         }
-
-            //         bool success = stateMachine.WriteValue(0, 0, result?.Replace(',', '\'') ?? "");
-
-            //         if (!success)
-            //         {
-            //             Console.WriteLine("could not write to store");
-            //             return -1;
-            //         }
-            //     }
-
-            //     return 1;
-            // };
-
-            // Func<int> Reset = () => {
-
-            //     // var Random random = new Random();
-
-            //     bool success = stateMachine.WriteValue(1, 1, "0");
-
-            //     if (!success)
-            //     {
-            //         Console.WriteLine("could not write to store");
-            //         return -1;
-            //     }
-
-            //     return 1;
-            // }
-
-            // Func<int> Next = () => 0;
-            // Func<int> ExitProgram = () => 0;
-
-            // functions.Add("Guess", Guess); // returns 1 if correct, zero if not 
-            // functions.Add("Next", Next); //simple connect to next state
-            // functions.Add("Exit", ExitProgram); //exit the program
-            // functions.Add("ExitQuestion", ExitQuestion); //exit the program question
-            // functions.Add("GreetUser", GreetUser); // greet the user at the beginning of the interaction
         }
 
         public void ImportFunctions()
@@ -160,6 +44,12 @@ namespace revelationStateMachine
             ImportedFunctions.Add(randomFunction.Name, randomFunction);
         }
 
+        /// <summary>
+        /// Attempts to get a function from the library.
+        /// </summary>
+        /// <param name="name">the name of the function</param>
+        /// <param name="function">the result of the function found (if successful)</param>
+        /// <returns>returns true if the function operation was successful, false if not.</returns>
         public bool TryGetFunction(string name, out FunctionDefinition? function)
         {
 
