@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+
+
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace revelationStateMachine
 {
@@ -205,6 +203,140 @@ namespace revelationStateMachine
             }
 
             return structure;
+        }
+
+        public StateMachine ParseInstructionsJSON(string json)
+        {
+            var jsonDoc = JsonDocument.Parse(json);
+
+            var root = jsonDoc.RootElement;
+
+            var variables = root.GetProperty("variables");
+            var functionsJson = root.GetProperty("functions");
+            var states = root.GetProperty("states");
+            var transitions = root.GetProperty("transitions");
+
+            foreach (var x in variables.EnumerateArray())
+            {
+                var name = x.GetProperty("name").GetString();
+                var type = x.GetProperty("type").GetString();
+                var value = x.GetProperty("value").GetString();
+
+                // Console.WriteLine($"adding variable {name} ({type}) =  {value}.");
+
+                if (type == null)
+                    throw new Exception($"Invalid variable definition. A valid type must be given after the name. ({type})");
+
+                if (value == null)
+                    throw new Exception($"Invalid variable definition. A valid value must be given after the name. ({value})");
+
+                bool result = GetType(type, out var variableType);
+
+                if (!result)
+                    throw new Exception($"Invalid variable definition. A valid type must be given after the name. ({type})");
+
+                if (name == null)
+                    throw new Exception($"Invalid variable definition. A valid name must be given after the definition.");
+
+                if (name == "")
+                    throw new Exception($"Invalid variable definition. A valid name must be given after the definition.");
+
+                if (Variables.ContainsKey(name))
+                    throw new Exception($"Invalid variable definition. The variable {name} already exists.");
+
+                if (variableType == StateMachineVariableType.Text)
+                {
+                    Console.WriteLine($"adding variable {name} ({variableType}) = \"{value}\".");
+                }
+                else
+                {
+                    Console.WriteLine($"adding variable {name} ({variableType}) = {value}.");
+                }
+
+                Variables.Add(name, new KeyTypeDefinition(name, variableType, value));
+            }
+
+
+            foreach (var x in functionsJson.EnumerateArray())
+            {
+                var name = x.GetProperty("name").GetString();
+                var parameters = x.GetProperty("parameters");
+                // var code = x.GetProperty("code").GetString();
+
+                Dictionary<string, (StateMachineVariableType type, bool added)> parameterList = new Dictionary<string, (StateMachineVariableType type, bool added)>();
+
+                Dictionary<string, KeyTypeDefinition> injectionVariables = new Dictionary<string, KeyTypeDefinition>();
+
+                if (name == null)
+                    throw new Exception($"Invalid function definition. A valid name must be given after the definition.");
+
+                if (!FunctionLibrary.TryGetFunction(name, out var function))
+                    throw new Exception($"Invalid function definition. The function {name} does not exist.");
+
+                if (function == null)
+                    throw new Exception($"Invalid function definition. The function {name} does not exist.");
+
+                foreach (var y in parameters.EnumerateArray())
+                {
+                    var paramName = y.GetProperty("name").GetString();
+                    var paramType = y.GetProperty("type").GetString();
+                    var varToConnectName = y.GetProperty("connectVar").ToString();
+
+                    if (paramName == null)
+                        throw new Exception($"Invalid function parameter definition. A valid name must be given after the definition.");
+
+                    if (paramName == "")
+                        throw new Exception($"Invalid function parameter definition. A valid name must be given after the definition.");
+
+                    if (paramType == null)
+                        throw new Exception($"Invalid function parameter definition. A valid type must be given after the name.");
+
+                    bool result = GetType(paramType, out var variableType);
+
+                    if (!result)
+                        throw new Exception($"Invalid function parameter definition. A valid type must be given after the name. ({paramType})");
+
+                    parameterList.Add(paramName, (variableType, true));
+
+                    if (Variables.TryGetValue(varToConnectName, out var variable))
+                        throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} does not exist.");
+
+                    if (variable == null)
+                        throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} cannot be generated.");
+
+                    if (variable.Type != variableType)
+                        throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} is not of type {variableType}.");
+
+                    injectionVariables.Add(paramName, variable);
+                }
+
+                function.ExpectedParameters = parameterList;
+
+                bool injectionResult = function.TryInjectParameters(injectionVariables, out var result2);
+
+                if (!injectionResult)
+                    throw new Exception($"{result2}");
+
+                if (functions.ContainsKey(name))
+                    throw new Exception($"Invalid function definition. The function {name} already exists.");
+
+                functions.Add(name, function);
+            }
+
+
+            foreach (var x in functions)
+            {
+                Console.WriteLine($"Function added {x.Key} {string.Join(',', x.Value.ExpectedParameters.Keys)} .");
+            }
+
+
+
+            Console.WriteLine("\t>Building State Machine...\n\n");
+
+
+
+
+            return null;
         }
 
 
@@ -448,8 +580,6 @@ namespace revelationStateMachine
                     }
                     else
                     {
-
-
 
                         Console.WriteLine($"adding parameter '{paramName}' to function insert '{insertFunParamName}' in function {currentFunction?.Name ?? "unknown"}.");
 

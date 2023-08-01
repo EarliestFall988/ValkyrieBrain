@@ -1,0 +1,59 @@
+{
+    "variables": [
+        {
+            "name": "name",
+            "type": "text",
+            "value": "test"
+        },
+        {
+            "name": "guess",
+            "type": "text",
+            "value": "test2"
+        }
+    ],
+    "functions": [
+        {
+            "name": "Guess",
+            "parameters": [
+                {
+                    "name": "guess",
+                    "type": "text",
+                    "connectVar": "guess"
+                },
+                {
+                    "name": "name",
+                    "type": "text",
+                    "connectVar": "name"
+                }
+            ]
+        }
+    ],
+    "states": [
+        {
+            "type": "start",
+            "name": "Start",
+            "functionName": "Guess"
+        },
+        {
+            "type": "fallback",
+            "name": "Exit"
+        },
+        {
+            "type": "state",
+            "name": "State",
+            "functionName": "Guess"
+        }
+    ],
+    "transitions": [
+        {
+            "from": "Start",
+            "to": "State",
+            "outcome": 1
+        },
+        {
+            "from": "State",
+            "to": "Exit",
+            "outcome": 1
+        }
+    ]
+}
