@@ -3,7 +3,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace revelationStateMachine
+namespace Avalon
 {
     /// <summary>
     /// The State Machine Constructor handles the parsing of the program file and the creation of the state machine.

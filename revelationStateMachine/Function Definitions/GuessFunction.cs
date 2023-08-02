@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace revelationStateMachine
+namespace Avalon
 {
     public sealed class GuessFunction : FunctionDefinition
     {

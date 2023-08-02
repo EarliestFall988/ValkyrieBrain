@@ -1,5 +1,5 @@
 
-namespace revelationStateMachine
+namespace Avalon
 {
     /// <summary>
     /// The State Machine is the main class that handles the state machine.

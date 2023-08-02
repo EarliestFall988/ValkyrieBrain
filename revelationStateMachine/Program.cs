@@ -1,11 +1,7 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using revelationStateMachine;
+using Avalon;
 
 string baseDomain = Environment.CurrentDirectory;
-
-// string programFilePath = $@"{baseDomain}\program.rstm";
 
 string json = System.IO.File.ReadAllText($@"{baseDomain}\stateMachine.json"); //get the json file
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace revelationStateMachine
+namespace Avalon
 {
     /// <summary>
     /// The Function Library is a collection of all functions that can be called by the state machine.

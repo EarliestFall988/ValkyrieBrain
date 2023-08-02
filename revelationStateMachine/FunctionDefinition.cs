@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace revelationStateMachine
+namespace Avalon
 {
     /// <summary>
     /// The function metadata definition

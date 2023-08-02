@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace revelationStateMachine
+namespace Avalon
 {
     /// <summary>
     /// The Key Type Definition handles the type of the key, name, and the value of the key.
