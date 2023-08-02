@@ -60,7 +60,7 @@ namespace revelationStateMachine
             States.Add(state);
         }
 
-        public void RunStateMachine()
+        private void RunStateMachine()
         {
 
             // if (Store == string.Empty)
@@ -202,6 +202,27 @@ namespace revelationStateMachine
 
             result = "";
             return false;
+        }
+
+        /// <summary>
+        /// Run the state machine
+        /// </summary>
+        /// <param name="machine">the state machine</param>
+        public void Boot()
+        {
+            Console.WriteLine("\n\tRun Program?\n");
+            string? result = Console.ReadLine();
+
+            if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
+            {
+                RunStateMachine();
+            }
+            else
+            {
+                Console.WriteLine("\n\t>Canceled.");
+            }
+
+            Console.WriteLine("\n\n\t>Exiting...");
         }
     }
 }

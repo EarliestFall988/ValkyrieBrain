@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using revelationStateMachine;
 
-string programFilePath = @"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\program.rstm";
-// StateMachineConstructor constructor = new StateMachineConstructor(programFilePath);
+string baseDomain = Environment.CurrentDirectory;
 
-// StateMachine machine = await constructor.ParseInstructions();
-// StateMachineConstructor.BootStateMachine(machine);
+// string programFilePath = $@"{baseDomain}\program.rstm";
 
-string json = System.IO.File.ReadAllText(@"C:\Users\howel\Documents\Software Development\RevelationStateMachine\revelationStateMachine\stateMachine.json");
+string json = System.IO.File.ReadAllText($@"{baseDomain}\stateMachine.json"); //get the json file
 
-StateMachineConstructor constructor = new StateMachineConstructor(programFilePath);
-constructor.ParseInstructionsJSON(json);
+StateMachineBuilder builder = new StateMachineBuilder(); // create a state machine builder
+var stateMachine = builder.ParseInstructionsJSON(json); // parse the json file and build the state machine
+
+
+stateMachine.Boot(); // boot the state machine

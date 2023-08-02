@@ -38,7 +38,7 @@ namespace revelationStateMachine
                 string name = Parameters["name"].GetText();
                 int guessNumber = Parameters["guess"].GetInt();
 
-                Console.WriteLine($"Okay {name}, Guess in a number");
+                Console.WriteLine($"Okay {name}, Guess a number");
                 string? number = Console.ReadLine();
 
                 if (number == null || number.Trim() == "")

@@ -8,7 +8,7 @@ namespace revelationStateMachine
     /// <summary>
     /// The State Machine Constructor handles the parsing of the program file and the creation of the state machine.
     /// </summary>
-    public class StateMachineConstructor
+    public class StateMachineBuilder
     {
         private Dictionary<string, FunctionDefinition> functions;
         private Dictionary<string, State> States;
@@ -19,15 +19,9 @@ namespace revelationStateMachine
 
         string FilePath = "";
 
-        public StateMachineConstructor(string filePath)
+        public StateMachineBuilder()
         {
 
-            if (!File.Exists(filePath))
-            {
-                throw new Exception($"File {filePath} does not exist.");
-            }
-
-            FilePath = filePath;
             StateMachine = new StateMachine();
             FunctionLibrary = new FunctionLibrary();
             functions = new Dictionary<string, FunctionDefinition>();
@@ -66,7 +60,7 @@ namespace revelationStateMachine
 
         }
 
-        public void AddStartStateMachine(string name, string jobName, StateMachine machine)
+        public void AddStartState(string name, string jobName, StateMachine machine)
         {
 
             string trimmedName = name.Trim();
@@ -83,7 +77,7 @@ namespace revelationStateMachine
 
         }
 
-        public void AddFallBackStateMachine(string name, string jobName, StateMachine machine)
+        public void AddFallBackState(string name, string jobName, StateMachine machine)
         {
 
             string trimmedName = name.Trim();
@@ -194,10 +188,10 @@ namespace revelationStateMachine
             }
         }
 
-        public async Task<string> GetProgramFile()
+        public async Task<string> GetProgramFile(string path)
         {
             string structure = "";
-            using (StreamReader reader = File.OpenText(FilePath))
+            using (StreamReader reader = File.OpenText(path))
             {
                 structure = await reader.ReadToEndAsync();
             }
@@ -215,6 +209,14 @@ namespace revelationStateMachine
             var functionsJson = root.GetProperty("functions");
             var states = root.GetProperty("states");
             var transitions = root.GetProperty("transitions");
+
+            bool createdStart = false;
+            bool createdFallback = false;
+
+            bool createdVariables = false;
+            bool createdFunctions = false;
+            bool createdStates = false;
+            bool createdTransitions = false;
 
             foreach (var x in variables.EnumerateArray())
             {
@@ -254,6 +256,8 @@ namespace revelationStateMachine
                 }
 
                 Variables.Add(name, new KeyTypeDefinition(name, variableType, value));
+
+                createdVariables = true;
             }
 
 
@@ -298,7 +302,7 @@ namespace revelationStateMachine
 
                     parameterList.Add(paramName, (variableType, true));
 
-                    if (Variables.TryGetValue(varToConnectName, out var variable))
+                    if (!Variables.TryGetValue(varToConnectName, out var variable))
                         throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} does not exist.");
 
                     if (variable == null)
@@ -321,6 +325,8 @@ namespace revelationStateMachine
                     throw new Exception($"Invalid function definition. The function {name} already exists.");
 
                 functions.Add(name, function);
+
+                createdFunctions = true;
             }
 
 
@@ -330,20 +336,184 @@ namespace revelationStateMachine
             }
 
 
+            foreach (var s in states.EnumerateArray())
+            {
 
-            Console.WriteLine("\t>Building State Machine...\n\n");
+                var name = s.GetProperty("name").GetString();
+                var isStart = false;
+                var isFallback = false;
+
+                var type = s.GetProperty("type").GetString();
+
+                if (name == null || name == "")
+                    throw new Exception($"Invalid state definition. A valid name must be given after the definition.");
+
+                if (type == "start")
+                {
+                    isStart = true;
+                }
+                else if (type == "fallback")
+                {
+                    isFallback = true;
+                }
+                else if (type != "state")
+                {
+                    throw new Exception($"Invalid state definition. A state must be of type 'state, fallback, or start'.");
+                }
+
+                if (isStart && createdStart)
+                    throw new Exception($"Invalid state definition. A start state has already been defined.");
+
+                if (isFallback && createdFallback)
+                    throw new Exception($"Invalid state definition. A fallback state has already been defined.");
+
+                if (isStart)
+                {
+                    createdStart = true;
+                }
+
+                if (isFallback)
+                {
+                    createdFallback = true;
+                }
+
+                if (States.ContainsKey(name))
+                    throw new Exception($"Invalid state definition. The state {name} already exists.");
+
+                var functionName = s.GetProperty("function").GetString();
+
+                if (functionName == null)
+                    throw new Exception($"Invalid state definition. A valid function must be given after the definition. (Make sure the function is declared in the functions section of the json file.)");
 
 
+                if (isStart)
+                {
+                    AddStartState(name, functionName, StateMachine);
+                }
+                else if (isFallback)
+                {
+                    AddFallBackState(name, functionName, StateMachine);
+                }
+                else
+                {
+                    AddState(name, functionName);
+                }
+
+                createdStates = true;
+            }
 
 
-            return null;
+            foreach (var x in States)
+            {
+                Console.WriteLine($"State added {x.Key}.");
+            }
+
+            foreach (var t in transitions.EnumerateArray())
+            {
+                var from = t.GetProperty("from").GetString();
+                var to = t.GetProperty("to").GetString();
+                var outcome = t.GetProperty("outcome").GetInt32();
+
+                string name = $"transition {from} -> {to}";
+
+                if (from == null || from == "")
+                    throw new Exception($"Invalid transition definition. A valid from state must be given after the definition.");
+
+                if (to == null || to == "")
+                    throw new Exception($"Invalid transition definition. A valid to state must be given after the definition.");
+
+                if (name == null || name == "")
+                    throw new Exception($"Invalid transition definition. A valid name must be given after the definition.");
+
+                AddTransition(name, from, to, outcome, StateMachine);
+
+                createdTransitions = true;
+            }
+
+
+            Console.WriteLine("\n\t>Building State Machine...\n\n");
+
+
+            if (!createdVariables)
+            {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("No variables defined.");
+                Console.ResetColor();
+            }
+
+            if (!createdFunctions || functions.Count < 1)
+            {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("No functions defined.");
+                Console.ResetColor();
+            }
+
+            if (!createdStart)
+            {
+                throw new Exception($"No start state defined.");
+            }
+
+            if (!createdFallback)
+            {
+                throw new Exception($"No fallback state defined.");
+            }
+
+            if (!createdStates)
+            {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("No states defined.");
+                Console.ResetColor();
+            }
+
+            if (!createdTransitions)
+            {
+                Console.BackgroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("No transitions defined.");
+                Console.ResetColor();
+            }
+
+            Console.WriteLine("\t>Result:\n\n");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Imported Functions:");
+            Console.ResetColor();
+            foreach (var x in functions.Values)
+            {
+
+                string pmtrs = "";
+
+                foreach (var y in x.ExpectedParameters)
+                {
+                    pmtrs += y.Key + ": " + y.Value.type + ", ";
+                }
+
+                pmtrs = pmtrs.Trim().TrimEnd(',');
+
+                Console.WriteLine("|" + x.Name + " [" + pmtrs + "]");
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n\nDefined States:");
+            Console.ResetColor();
+
+            foreach (var x in States.Values)
+            {
+                Console.WriteLine("|" + x.Name + " [" + String.Join(',', x.Transitions) + "]");
+            }
+
+            Console.WriteLine("\n\t>Program Loaded.\n");
+
+
+            StateMachine.States.AddRange(States.Values);
+
+            return StateMachine;
         }
 
 
-        public async Task<StateMachine> ParseInstructions()
+        public async Task<StateMachine> ParseInstructions(string filePath)
         {
 
-            string structure = await GetProgramFile();
+            string structure = await GetProgramFile(filePath);
 
             string[] lines = structure.Split("\n");
             var defineStates = false;
@@ -657,7 +827,7 @@ namespace revelationStateMachine
                             throw new Exception($"Invalid fallback state definition. A valid name must be given after the definition. (at line {lineNumber})");
 
                         // AddState(stateName, stateFunctionName);
-                        AddStartStateMachine(stateName, stateFunctionName, StateMachine);
+                        AddStartState(stateName, stateFunctionName, StateMachine);
 
                         States[stateName].InitialState = true;
 
@@ -682,7 +852,7 @@ namespace revelationStateMachine
                         // Console.WriteLine("creating fallback");
 
                         // AddState(stateName, stateFunctionName);
-                        AddFallBackStateMachine(stateName, stateFunctionName, StateMachine);
+                        AddFallBackState(stateName, stateFunctionName, StateMachine);
 
                         States[stateName].FallbackState = true;
 
@@ -777,27 +947,6 @@ namespace revelationStateMachine
             StateMachine.States.AddRange(States.Values);
 
             return StateMachine;
-        }
-
-        /// <summary>
-        /// Run the state machine
-        /// </summary>
-        /// <param name="machine">the state machine</param>
-        public static void BootStateMachine(StateMachine machine)
-        {
-            Console.WriteLine("\n\tRun Program?\n");
-            string? result = Console.ReadLine();
-
-            if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
-            {
-                machine.RunStateMachine();
-            }
-            else
-            {
-                Console.WriteLine("\n\t>Canceled.");
-            }
-
-            Console.WriteLine("\n\n\t>Exiting...");
         }
     }
 }

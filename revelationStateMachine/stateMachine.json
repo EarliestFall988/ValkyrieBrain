@@ -1,59 +1,64 @@
 {
-    "variables": [
+  "variables": [
+    {
+      "name": "name",
+      "type": "text",
+      "value": "test"
+    },
+    {
+      "name": "guess",
+      "type": "text",
+      "value": "test2"
+    }
+  ],
+  "functions": [
+    {
+      "name": "Guess",
+      "parameters": [
         {
-            "name": "name",
-            "type": "text",
-            "value": "test"
+          "name": "guess",
+          "type": "text",
+          "connectVar": "guess"
         },
         {
-            "name": "guess",
-            "type": "text",
-            "value": "test2"
+          "name": "name",
+          "type": "text",
+          "connectVar": "name"
         }
-    ],
-    "functions": [
-        {
-            "name": "Guess",
-            "parameters": [
-                {
-                    "name": "guess",
-                    "type": "text",
-                    "connectVar": "guess"
-                },
-                {
-                    "name": "name",
-                    "type": "text",
-                    "connectVar": "name"
-                }
-            ]
-        }
-    ],
-    "states": [
-        {
-            "type": "start",
-            "name": "Start",
-            "functionName": "Guess"
-        },
-        {
-            "type": "fallback",
-            "name": "Exit"
-        },
-        {
-            "type": "state",
-            "name": "State",
-            "functionName": "Guess"
-        }
-    ],
-    "transitions": [
-        {
-            "from": "Start",
-            "to": "State",
-            "outcome": 1
-        },
-        {
-            "from": "State",
-            "to": "Exit",
-            "outcome": 1
-        }
-    ]
+      ]
+    },
+    {
+      "name": "Continue",
+      "parameters": []
+    }
+  ],
+  "states": [
+    {
+      "type": "start",
+      "name": "Start",
+      "function": "Guess"
+    },
+    {
+      "type": "fallback",
+      "name": "Exit",
+      "function": "Continue"
+    },
+    {
+      "type": "state",
+      "name": "some state",
+      "function": "Guess"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "Start",
+      "to": "some state",
+      "outcome": 1
+    },
+    {
+      "from": "some state",
+      "to": "Exit",
+      "outcome": 1
+    }
+  ]
 }
