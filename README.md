@@ -1,2 +1,2 @@
 # RevelationStateMachine
-State Machine Software For Revelation AI Game
+SM for Valkyrie
