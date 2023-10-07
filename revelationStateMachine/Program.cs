@@ -18,16 +18,16 @@ using Avalon;
 //     return;
 // }
 
-// Console.WriteLine("What is the 6 digit pin?");
-// var pin = Console.ReadLine();
+Console.WriteLine("What is the 6 digit pin?");
+var pin = Console.ReadLine();
 
-// if (pin == null || pin.Length != 6)
-// {
-//     Console.WriteLine("Invalid pin length");
-//     return;
-// }
+if (pin == null || pin.Length != 6)
+{
+    Console.WriteLine("Invalid pin length");
+    return;
+}
 
-// Console.WriteLine("Connecting to web app...");
+Console.WriteLine("Connecting to web app...");
 var webController = new ValkyrieWebConnectionController("123123", "howelltaylor195@gmail.com");
 
 await webController.Connect();
