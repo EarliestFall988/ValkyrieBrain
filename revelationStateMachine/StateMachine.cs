@@ -90,6 +90,8 @@ namespace Avalon
 
             Console.WriteLine("\t>Start\n\n");
 
+            IsRunning = true;
+
             while (CurrentState != FallbackState)
             {
                 Evaluate();
@@ -101,12 +103,13 @@ namespace Avalon
         /// <summary>
         /// Evaluates the transitions of the current state.
         /// </summary>
-        public void Evaluate() 
+        public void Evaluate()
         {
 
             if (!IsRunning)
             {
-                Console.WriteLine("the state machine is not running");
+                Console.WriteLine("the state machine is not running - falling back.");
+                CurrentState = FallbackState;
                 return;
             }
 
@@ -270,9 +273,7 @@ namespace Avalon
             }
 
             Console.WriteLine("\n\n\t>Exiting...");
-
-
-            RunStateMachine();
+         
         }
     }
 }

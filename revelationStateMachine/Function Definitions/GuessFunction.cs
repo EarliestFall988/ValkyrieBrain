@@ -24,10 +24,10 @@ namespace Avalon
             //     StateMachineVariableType.Integer // guess
             // };
 
-            ExpectedParameters = new Dictionary<string, (StateMachineVariableType type, bool applied)>()
+            ExpectedParameters = new Dictionary<string, ReferenceTuple>()
             {
-                { "name", (StateMachineVariableType.Text, false) },
-                { "guess", (StateMachineVariableType.Integer, false) }
+                { "name", new ReferenceTuple(StateMachineVariableType.Text, false) },
+                { "guess", new ReferenceTuple(StateMachineVariableType.Integer, false) }
             };
 
             Name = "Guess";

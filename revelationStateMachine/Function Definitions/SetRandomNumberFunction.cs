@@ -19,11 +19,11 @@ namespace Avalon
 
             Name = "SetRandomNumber";
 
-            ExpectedParameters = new Dictionary<string, (StateMachineVariableType type, bool applied)>()
+            ExpectedParameters = new Dictionary<string, ReferenceTuple>()
             {
-                { "valueToChange", (StateMachineVariableType.Integer, false) },
-                { "min", (StateMachineVariableType.Integer, false) },
-                { "max", (StateMachineVariableType.Integer, false) }
+                { "valueToChange", new ReferenceTuple(StateMachineVariableType.Integer, false) },
+                { "min", new ReferenceTuple(StateMachineVariableType.Integer, false) },
+                { "max", new ReferenceTuple(StateMachineVariableType.Integer, false) }
             };
 
             Func<int> func = () =>

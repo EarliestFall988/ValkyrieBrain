@@ -294,8 +294,8 @@ namespace Avalon
                 if (name == "")
                     throw new Exception($"Invalid variable definition. A valid name must be given after the definition.");
 
-                // if (Variables.ContainsKey(name))
-                //throw new Exception($"Invalid variable definition. The variable {name} already exists.");
+                if (Variables.ContainsKey(name))
+                    throw new Exception($"Invalid variable definition. The variable {name} already exists.");
 
                 if (variableType == StateMachineVariableType.Text)
                 {
@@ -305,6 +305,8 @@ namespace Avalon
                 {
                     Console.WriteLine($"adding variable {name} ({variableType}) = {value}.");
                 }
+
+                Variables.Add(name, new KeyTypeDefinition(name, variableType, value));
 
                 // if (foundProperty && visibility == "ref") //handle for other objects to reference this variable
                 // {
@@ -351,14 +353,14 @@ namespace Avalon
                 //     Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.GameObject, obj)); // <- error here
                 // }
 
-                foreach (var t in stringRefDict.Keys)
-                {
+                // foreach (var t in stringRefDict.Keys)
+                // {
 
-                    if (Variables.ContainsKey(t)) continue;
+                //     if (Variables.ContainsKey(t)) continue;
 
-                    var str = stringRefDict[t];
-                    Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.Text, str));
-                }
+                //     var str = stringRefDict[t];
+                //     Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.Text, str));
+                // }
 
                 // foreach (var t in floatRefDict.Keys)
                 // {
@@ -368,6 +370,8 @@ namespace Avalon
                 //     var flt = floatRefDict[t];
                 //     Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.Single, flt));
                 // }
+
+
 
                 createdVariables = true;
             }
@@ -403,32 +407,37 @@ namespace Avalon
 
                     var overrideType = "";
 
+                    if (paramName == null)
+                    {
+                        throw new Exception($"Invalid function parameter definition. A valid name must be given after the definition.");
+                    }
+
                     // #region unity specific
-                    // var extResult = ParseExtraneousVariables(varToConnectName);
+                    var extResult = ParseExtraneousVariables(varToConnectName);
 
 
-                    // if (extResult.type != "")
-                    // {
-                    //     varToConnectName = extResult.name;
-                    // }
+                    if (extResult.type != "")
+                    {
+                        varToConnectName = extResult.name;
+                    }
 
                     // if (paramType == "decimal")
                     // {
                     //     paramType = "float";
                     // }
 
-                    // var extParamName = ParseExtraneousVariables(paramName);
+                    var extParamName = ParseExtraneousVariables(paramName);
 
-                    // if (extParamName.type != "")
-                    // {
-                    //     paramName = extParamName.name;
-                    //     overrideType = extParamName.type;
-                    // }
+                    if (extParamName.type != "")
+                    {
+                        paramName = extParamName.name;
+                        overrideType = extParamName.type;
+                    }
 
-                    // if (varToConnectName == "")
-                    // {
-                    //     varToConnectName = extParamName.name;
-                    // }
+                    if (varToConnectName == "")
+                    {
+                        varToConnectName = extParamName.name;
+                    }
 
                     // #endregion
 
