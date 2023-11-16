@@ -75,7 +75,6 @@ namespace Avalon
             {
                 Cluster = PUSHER_APP_CLUSTER,
                 Encrypted = true,
-                Authorizer = new ,
                 TraceLogger = new TraceLogger()
             });
 
