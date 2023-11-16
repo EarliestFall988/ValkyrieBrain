@@ -1,7 +1,11 @@
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Linq;
 
 namespace Avalon
 {
@@ -16,6 +20,10 @@ namespace Avalon
         private Dictionary<string, KeyTypeDefinition> Variables;
         private FunctionLibrary FunctionLibrary;
         StateMachine StateMachine;
+
+        // public Dictionary<string, GameObject> GameObjectRefDict = new Dictionary<string, GameObject>();
+        public Dictionary<string, string> stringRefDict = new Dictionary<string, string>();
+        public Dictionary<string, float> floatRefDict = new Dictionary<string, float>();
 
         string FilePath = "";
 
@@ -108,6 +116,15 @@ namespace Avalon
             string trimmedFrom = from.Trim();
             string trimmedTo = to.Trim();
 
+            // foreach (var x in States.Keys)
+            // {
+            //     Console.WriteLine(x);
+            // }
+
+            var transitionName = trimmedFrom + " -> " + trimmedTo;
+
+            Console.WriteLine(trimmedName);
+
             Transition t = new Transition(States[trimmedFrom], States[trimmedTo], trimmedName, outcome);
 
             Transitions.Add(trimmedName, t);
@@ -156,6 +173,7 @@ namespace Avalon
                 case "text":
                     result = StateMachineVariableType.Text;
                     return true;
+
                 case "integer":
                     result = StateMachineVariableType.Integer;
                     return true;
@@ -167,6 +185,18 @@ namespace Avalon
                 case "yesno":
                     result = StateMachineVariableType.YesNo;
                     return true;
+
+                // case "gameobject":
+                //     result = StateMachineVariableType.GameObject;
+                //     return true;
+
+                // case "vector3":
+                //     result = StateMachineVariableType.Vector3;
+                //     return true;
+
+                // case "float":
+                //     result = StateMachineVariableType.Single;
+                //     return true;
 
                 default:
                     result = StateMachineVariableType.Text;
@@ -188,6 +218,7 @@ namespace Avalon
             }
         }
 
+        [Obsolete("this method is only being used for the non JSON parser")]
         public async Task<string> GetProgramFile(string path)
         {
             string structure = "";
@@ -224,6 +255,26 @@ namespace Avalon
                 var type = x.GetProperty("type").GetString();
                 var value = x.GetProperty("value").GetString();
 
+
+                // #region unity specific
+                // var extResult = ParseExtraneousVariables(name);
+
+                // if (extResult.type != "")
+                // {
+                //     name = extResult.name;
+                //     type = extResult.type;
+                // }
+
+                // if (type == "decimal")
+                // {
+                //     type = "float";
+                // }
+                // #endregion
+
+                var foundProperty = x.TryGetProperty("visibility", out var refProp);
+                string? visibility = "";
+                if (foundProperty) visibility = refProp.GetString();
+
                 // Console.WriteLine($"adding variable {name} ({type}) =  {value}.");
 
                 if (type == null)
@@ -257,6 +308,71 @@ namespace Avalon
 
                 Variables.Add(name, new KeyTypeDefinition(name, variableType, value));
 
+                // if (foundProperty && visibility == "ref") //handle for other objects to reference this variable
+                // {
+                //     switch (variableType)
+                //     {
+                //         case StateMachineVariableType.Text:
+                //             if (stringRefDict.ContainsKey(name))
+                //             {
+                //                 var str = stringRefDict[name];
+                //                 Variables.Add(name, new KeyTypeDefinition(name, variableType, str));
+                //             }
+                //             break;
+                //         case StateMachineVariableType.Single:
+                //             if (floatRefDict.ContainsKey(name))
+                //             {
+                //                 var flt = floatRefDict[name];
+                //                 Variables.Add(name, new KeyTypeDefinition(name, variableType, flt));
+                //             }
+                //             break;
+                //         case StateMachineVariableType.GameObject:
+                //             if (GameObjectRefDict.ContainsKey(name))
+                //             {
+                //                 var obj = GameObjectRefDict[name];
+                //                 Variables.Add(name, new KeyTypeDefinition(name, variableType, obj));
+                //             }
+                //             break;
+                //     }
+                // }
+                // else
+                // {
+
+                // if (!Variables.ContainsKey(name))
+                //     if (variableType != StateMachineVariableType.Single)
+                //         Variables.Add(name, new KeyTypeDefinition(name, variableType, value));
+                //     else
+                //         Variables.Add(name, new KeyTypeDefinition(name, variableType, float.Parse(value)));
+                // }
+
+                // foreach (var t in GameObjectRefDict.Keys)
+                // {
+                //     if (Variables.ContainsKey(t)) continue;
+
+                //     var obj = GameObjectRefDict[t];
+                //     Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.GameObject, obj)); // <- error here
+                // }
+
+                // foreach (var t in stringRefDict.Keys)
+                // {
+
+                //     if (Variables.ContainsKey(t)) continue;
+
+                //     var str = stringRefDict[t];
+                //     Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.Text, str));
+                // }
+
+                // foreach (var t in floatRefDict.Keys)
+                // {
+
+                //     if (Variables.ContainsKey(t)) continue;
+
+                //     var flt = floatRefDict[t];
+                //     Variables.Add(t, new KeyTypeDefinition(t, StateMachineVariableType.Single, flt));
+                // }
+
+
+
                 createdVariables = true;
             }
 
@@ -267,7 +383,10 @@ namespace Avalon
                 var parameters = x.GetProperty("parameters");
                 // var code = x.GetProperty("code").GetString();
 
-                Dictionary<string, (StateMachineVariableType type, bool added)> parameterList = new Dictionary<string, (StateMachineVariableType type, bool added)>();
+
+
+
+                Dictionary<string, ReferenceTuple> parameterList = new Dictionary<string, ReferenceTuple>();
 
                 Dictionary<string, KeyTypeDefinition> injectionVariables = new Dictionary<string, KeyTypeDefinition>();
 
@@ -286,6 +405,42 @@ namespace Avalon
                     var paramType = y.GetProperty("type").GetString();
                     var varToConnectName = y.GetProperty("connectVar").ToString();
 
+                    var overrideType = "";
+
+                    if (paramName == null)
+                    {
+                        throw new Exception($"Invalid function parameter definition. A valid name must be given after the definition.");
+                    }
+
+                    // #region unity specific
+                    var extResult = ParseExtraneousVariables(varToConnectName);
+
+
+                    if (extResult.type != "")
+                    {
+                        varToConnectName = extResult.name;
+                    }
+
+                    // if (paramType == "decimal")
+                    // {
+                    //     paramType = "float";
+                    // }
+
+                    var extParamName = ParseExtraneousVariables(paramName);
+
+                    if (extParamName.type != "")
+                    {
+                        paramName = extParamName.name;
+                        overrideType = extParamName.type;
+                    }
+
+                    if (varToConnectName == "")
+                    {
+                        varToConnectName = extParamName.name;
+                    }
+
+                    // #endregion
+
                     if (paramName == null)
                         throw new Exception($"Invalid function parameter definition. A valid name must be given after the definition.");
 
@@ -297,19 +452,28 @@ namespace Avalon
 
                     bool result = GetType(paramType, out var variableType);
 
-                    if (!result)
-                        throw new Exception($"Invalid function parameter definition. A valid type must be given after the name. ({paramType})");
+                    #region Unity specific
 
-                    parameterList.Add(paramName, (variableType, true));
+                    if (overrideType != "")
+                    {
+                        result = GetType(overrideType, out variableType);
+                    }
+
+                    #endregion
+
+                    if (!result)
+                        throw new Exception($"Invalid function parameter definition. A valid type must be given after the name. ({paramName} : {paramType})");
+
+                    parameterList.Add(paramName, new ReferenceTuple(variableType, true));
 
                     if (!Variables.TryGetValue(varToConnectName, out var variable))
-                        throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} does not exist.");
+                        throw new Exception($"Invalid function parameter definition. The connection variable \"{varToConnectName}\" does not exist. ({name} - {paramName} : {paramType})");
 
                     if (variable == null)
-                        throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} cannot be generated.");
+                        throw new Exception($"Invalid function parameter definition. The connection variable \"{varToConnectName}\" cannot be generated. ({name} - {paramName} : {paramType})");
 
                     if (variable.Type != variableType)
-                        throw new Exception($"Invalid function parameter definition. The connection variable {varToConnectName} is not of type {variableType}.");
+                        throw new Exception($"Invalid function parameter definition. The connection variable \"{varToConnectName}\" is not of type {variableType}. ({name} - {paramName} : {paramType})");
 
                     injectionVariables.Add(paramName, variable);
                 }
@@ -414,7 +578,7 @@ namespace Avalon
                 var to = t.GetProperty("to").GetString();
                 var outcome = t.GetProperty("outcome").GetInt32();
 
-                string name = $"transition {from} -> {to}";
+                string name = $"transition {from} -> {to} : {outcome}";
 
                 if (from == null || from == "")
                     throw new Exception($"Invalid transition definition. A valid from state must be given after the definition.");
@@ -505,11 +669,13 @@ namespace Avalon
 
 
             StateMachine.States.AddRange(States.Values);
+            StateMachine.Variables = Variables;
+            StateMachine.CurrentState = StateMachine.InitialState;
 
             return StateMachine;
         }
 
-
+        [Obsolete("This method is deprecated, use ParseInstructionsJSON instead.")]
         public async Task<StateMachine> ParseInstructions(string filePath)
         {
 
@@ -523,7 +689,7 @@ namespace Avalon
             var hasCreatedVariables = false;
 
             var importFunctions = false;
-            FunctionDefinition? currentFunction = null;// default function
+            FunctionDefinition? currentFunction = null; // default function
             Dictionary<string, KeyTypeDefinition> parameters = new Dictionary<string, KeyTypeDefinition>();
             var hasImportedFunctions = false;
 
@@ -948,5 +1114,25 @@ namespace Avalon
 
             return StateMachine;
         }
+
+        /// <summary>
+        /// Some variables can be parsed like such -> "variableName:variableType"
+        /// </summary>
+        /// <param name="variableName">the var name</param>
+        /// <returns>returns the variable name and type as a tuple</returns>
+        public (string name, string type) ParseExtraneousVariables(string variableName)
+        {
+            if (variableName.Contains(":"))
+            {
+                var result = variableName.Split(":");
+                if (result.Length > 0)
+                {
+                    return (result[0], result[1]);
+                }
+            }
+
+            return (variableName, "");
+        }
     }
+
 }

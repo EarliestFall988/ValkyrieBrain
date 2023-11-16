@@ -20,9 +20,9 @@ namespace Avalon
 
             Name = "GreetUser";
 
-            ExpectedParameters = new Dictionary<string, (StateMachineVariableType type, bool applied)>()
+            ExpectedParameters = new Dictionary<string, ReferenceTuple>()
             {
-                { "name", (StateMachineVariableType.Text, false) }
+                { "name", new ReferenceTuple(StateMachineVariableType.Text, false) }
             };
 
             Func<int> GreetUser = () =>

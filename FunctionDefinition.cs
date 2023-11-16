@@ -24,7 +24,7 @@ namespace Avalon
         /// </summary>
         /// <typeparam name="StateMachineVariableType"></typeparam>
         /// <returns></returns>
-        public Dictionary<string, (StateMachineVariableType type, bool applied)> ExpectedParameters { get; set; } = new Dictionary<string, (StateMachineVariableType type, bool applied)>();
+        public Dictionary<string, ReferenceTuple> ExpectedParameters { get; set; } = new Dictionary<string, ReferenceTuple>();
 
         /// <summary>
         /// The dictionary of parameters
@@ -50,7 +50,7 @@ namespace Avalon
                         if (ExpectedParameters[x.Key].type == x.Value.Type)
                         {
                             Parameters.Add(x.Key, x.Value);
-                            ExpectedParameters[x.Key] = (ExpectedParameters[x.Key].type, true);
+                            ExpectedParameters[x.Key] = new ReferenceTuple(ExpectedParameters[x.Key].type, true);
                         }
                         else
                         {

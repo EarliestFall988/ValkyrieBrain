@@ -30,7 +30,7 @@ namespace Avalon
 
                 // Console.WriteLine("You typed in " + number);
 
-                if (answer.Trim().ToLower() == "yes") // exit the program
+                if (answer.Trim().ToLower() == "yes" || answer.Trim().ToLower() == "y") // exit the program
                 {
                     return 1;
                 }
