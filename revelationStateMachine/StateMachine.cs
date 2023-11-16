@@ -63,7 +63,7 @@ namespace Avalon
             States.Add(state);
         }
 
-        [Obsolete("causes a stack overflow", true)]
+
         private void RunStateMachine()
         {
 
@@ -88,20 +88,20 @@ namespace Avalon
             if (CurrentState != null && !CurrentState.active)
                 CurrentState.active = true;
 
-            // Console.WriteLine("\t>Start\n\n");
+            Console.WriteLine("\t>Start\n\n");
 
             while (CurrentState != FallbackState)
             {
                 Evaluate();
             }
 
-            // Console.WriteLine("\n\n\t>End");
+            Console.WriteLine("\n\n\t>End");
         }
 
         /// <summary>
         /// Evaluates the transitions of the current state.
         /// </summary>
-        public void Evaluate() // probably should unity ify this
+        public void Evaluate() 
         {
 
             if (!IsRunning)
@@ -117,12 +117,15 @@ namespace Avalon
                 CurrentState = InitialState;
             }
 
-            // Console.ForegroundColor = ConsoleColor.Green;
-            // Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
-            // Console.ResetColor();
-            // Console.WriteLine();
+            if (CurrentState == null)
+                throw new NullReferenceException("cannot boot to start state");
 
-            // Console.WriteLine("current state: " + CurrentState.Name);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
+            Console.ResetColor();
+            Console.WriteLine();
+
+            Console.WriteLine("current state: " + CurrentState.Name);
 
             if (CurrentState == null)
                 throw new NullReferenceException("the current state is null");
@@ -251,22 +254,22 @@ namespace Avalon
         /// Run the state machine
         /// </summary>
         /// <param name="machine">the state machine</param>
-        [Obsolete("causes a stack overflow", true)]
+
         public void Boot()
         {
-            // Console.WriteLine("\n\tRun Program?\n");
-            // string result = Console.ReadLine();
+            Console.WriteLine("\n\tRun Program?\n");
+            string? result = Console.ReadLine();
 
-            // if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
-            // {
-            //     RunStateMachine();
-            // }
-            // else
-            // {
-            //     Console.WriteLine("\n\t>Canceled.");
-            // }
+            if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
+            {
+                RunStateMachine();
+            }
+            else
+            {
+                Console.WriteLine("\n\t>Canceled.");
+            }
 
-            // Console.WriteLine("\n\n\t>Exiting...");
+            Console.WriteLine("\n\n\t>Exiting...");
 
 
             RunStateMachine();
