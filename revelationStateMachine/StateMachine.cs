@@ -19,6 +19,8 @@ namespace Avalon
         /// <returns></returns>
         public List<State> States = new List<State>();
 
+        public Dictionary<string, KeyTypeDefinition> Variables = new Dictionary<string, KeyTypeDefinition>();
+
         /// <summary>
         /// The current state of the machine.
         /// </summary>
@@ -36,6 +38,11 @@ namespace Avalon
         /// </summary>
         /// <value></value>
         public State? InitialState { get; set; }
+
+        /// <summary>
+        /// is the state machine running?
+        /// </summary>
+        public bool IsRunning { get; set; } = false;
 
         /// <summary>
         /// Creates a new state machine with the given initial state and fallback state.
@@ -56,6 +63,7 @@ namespace Avalon
             States.Add(state);
         }
 
+        [Obsolete("causes a stack overflow", true)]
         private void RunStateMachine()
         {
 
@@ -67,60 +75,99 @@ namespace Avalon
             //     return;
             // }
 
-            if (FallbackState == null || InitialState == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("the fallback state or initial state is null");
-                Console.ResetColor();
-                return;
-            }
+            // if (FallbackState == null || InitialState == null)
+            // {
+            //     Console.ForegroundColor = ConsoleColor.Red;
+            //     Console.WriteLine("the fallback state or initial state is null");
+            //     Console.ResetColor();
+            //     return;
+            // }
 
             CurrentState = InitialState; // load the first state
 
-            if (!CurrentState.active)
+            if (CurrentState != null && !CurrentState.active)
                 CurrentState.active = true;
 
-            Console.WriteLine("\t>Start\n\n");
+            // Console.WriteLine("\t>Start\n\n");
 
             while (CurrentState != FallbackState)
             {
                 Evaluate();
             }
 
-            Console.WriteLine("\n\n\t>End");
+            // Console.WriteLine("\n\n\t>End");
         }
 
         /// <summary>
         /// Evaluates the transitions of the current state.
         /// </summary>
-        public void Evaluate()
+        public void Evaluate() // probably should unity ify this
         {
+
+            if (!IsRunning)
+            {
+                Console.WriteLine("the state machine is not running");
+                return;
+            }
 
             if (CurrentState == null)
             {
-                throw new NullReferenceException("the current state is null");
+                // throw new NullReferenceException("the current state is null");
+                Console.WriteLine("the current state is null, booting to start state.");
+                CurrentState = InitialState;
             }
-            else
-            {
-                // Console.ForegroundColor = ConsoleColor.Green;
-                // Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
-                // Console.ResetColor();
-                Console.WriteLine();
 
+            // Console.ForegroundColor = ConsoleColor.Green;
+            // Console.WriteLine($"------------------[{CurrentState.Name}]------------------");
+            // Console.ResetColor();
+            // Console.WriteLine();
+
+            // Console.WriteLine("current state: " + CurrentState.Name);
+
+            if (CurrentState == null)
+                throw new NullReferenceException("the current state is null");
+
+            try
+            {
                 int result = CurrentState.Function();
+
+                if (CurrentState == FallbackState)
+                {
+                    Console.WriteLine("the current state is the fallback state, exiting.");
+                    return;
+                }
+
                 // Console.WriteLine("Result: " + result);
                 State? nextState = CurrentState.EvaluateTransitions(result);
+
 
                 // Console.WriteLine("Next State: " + nextState?.Name);
 
                 // Console.WriteLine(Store);
 
-                if (nextState != null)
+                if (nextState != null && nextState != CurrentState)
                 {
+                    // Console.WriteLine("transitioning to: " + nextState.Name);
+
                     CurrentState.active = false;
                     CurrentState = nextState;
                     CurrentState.active = true;
                 }
+
+
+                if (nextState == null)
+                {
+                    Console.WriteLine($"cannot transition to next state from {CurrentState.Name} -> result: {result}; exiting via fallback state.");
+                    CurrentState = FallbackState;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (CurrentState == null)
+                    throw new NullReferenceException("the current state is null");
+
+                Console.WriteLine($"Error in state {CurrentState.Name}: {ex.Message}");
+                CurrentState = FallbackState;
             }
         }
 
@@ -142,11 +189,11 @@ namespace Avalon
                 return false;
             }
 
-            string[]? lines = Store.Split("\n");
+            string[] lines = Store.Split("\n");
             if (lines != null)
             {
                 string line = lines[row];
-                string[]? cells = line.Split(",");
+                string[] cells = line.Split(",");
 
                 if (cells != null)
                 {
@@ -204,21 +251,25 @@ namespace Avalon
         /// Run the state machine
         /// </summary>
         /// <param name="machine">the state machine</param>
+        [Obsolete("causes a stack overflow", true)]
         public void Boot()
         {
-            Console.WriteLine("\n\tRun Program?\n");
-            string? result = Console.ReadLine();
+            // Console.WriteLine("\n\tRun Program?\n");
+            // string result = Console.ReadLine();
 
-            if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
-            {
-                RunStateMachine();
-            }
-            else
-            {
-                Console.WriteLine("\n\t>Canceled.");
-            }
+            // if (result != null && (result.Trim().ToLower() == "yes" || result.Trim().ToLower() == "y"))
+            // {
+            //     RunStateMachine();
+            // }
+            // else
+            // {
+            //     Console.WriteLine("\n\t>Canceled.");
+            // }
 
-            Console.WriteLine("\n\n\t>Exiting...");
+            // Console.WriteLine("\n\n\t>Exiting...");
+
+
+            RunStateMachine();
         }
     }
 }
